@@ -62,14 +62,14 @@ class CustomConfig(Config):
     Derives from the base Config class and overrides some values.
     """
     # Give the configuration a recognizable name
-    NAME = "beagle"
+    NAME = "parts"
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
     IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 1  # Background + beagle
+    NUM_CLASSES = 1 + 5  # Background + beagle
 
     # Number of training steps per epoch
     STEPS_PER_EPOCH = 100
@@ -90,7 +90,11 @@ class CustomDataset(utils.Dataset):
         subset: Subset to load: train or val
         """
         # Add classes. We have only one class to add.
-        self.add_class("beagle", 1, "beagle")
+        self.add_class("parts", 1, "m4x15")
+        self.add_class("parts", 2, "m4x17")
+        self.add_class("parts", 3, "m4x25")
+        self.add_class("parts", 4, "m4x30")
+        self.add_class("parts", 5, "m4x75")
 
         # Train or validation dataset?
         assert subset in ["train", "val"]
@@ -150,7 +154,7 @@ class CustomDataset(utils.Dataset):
         """
         # If not a beagle dataset image, delegate to parent class.
         image_info = self.image_info[image_id]
-        if image_info["source"] != "beagle":
+        if image_info["source"] != "parts":
             return super(self.__class__, self).load_mask(image_id)
 
         # Convert polygons to a bitmap mask of shape
@@ -170,11 +174,10 @@ class CustomDataset(utils.Dataset):
     def image_reference(self, image_id):
         """Return the path of the image."""
         info = self.image_info[image_id]
-        if info["source"] == "beagle":
+        if info["source"] == "parts":
             return info["path"]
         else:
             super(self.__class__, self).image_reference(image_id)
-
 
 def train(model):
     """Train the model."""
